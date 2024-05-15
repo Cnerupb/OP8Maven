@@ -15,12 +15,14 @@ public class App {
 
   public static void main(String[] args) throws InterruptedException {
     int n;
+    int counter;
     Optional<Integer> optN;
     List<MapSector> mapSectors;
     AtomicReferenceArray<Boolean> obtainedMapSectors;
     List<Thread> threadList;
 
     // Getting N from User
+    System.out.println("To exit, type 'exit'.");
     while (true) {
       optN = Optional.empty();
       try {
@@ -57,11 +59,16 @@ public class App {
       }
 
       // printing results
+      counter = 0;
       System.out.println("Treasures found in sectors: ");
       for (int i = 0; i < n; i++) {
         if (obtainedMapSectors.get(i).equals(true)) {
           System.out.println(i);
+          counter += 1;
         }
+      }
+      if (counter == 0) {
+        System.out.println("Not found.");
       }
     }
   }
