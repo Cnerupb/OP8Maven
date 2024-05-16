@@ -42,7 +42,9 @@ public class InputManager<T> {
           throw new ExitException("Exiting...");
         }
         value = converter.apply(strValue);
-        validator.test(value);
+        if (!validator.test(value)) {
+          throw new Exception("Invalid input!");
+        }
         return Optional.ofNullable(value);
       } catch (ExitException exitException) {
         throw exitException;
