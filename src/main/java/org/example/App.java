@@ -1,5 +1,6 @@
 package org.example;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -183,7 +184,9 @@ public class App {
       System.out.println("config.xml loaded...");
       System.out.println("N is " + this.n);
     } catch (IOException e) {
-      if (e instanceof UnsupportedEncodingException) {
+      if (e instanceof FileNotFoundException) {
+        System.out.println("Error: config.xml not found. config.xml must be in root project directory");
+      } else if (e instanceof UnsupportedEncodingException) {
         System.out.println("Encoding error. Encoding must be UTF-8");
       } else if (e instanceof InvalidPropertiesFormatException) {
         System.out.println("XML parse error. Check config.xml fields on syntax errors");
