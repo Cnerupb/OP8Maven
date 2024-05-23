@@ -1,7 +1,9 @@
 package org.example;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -55,7 +57,7 @@ public class App {
 
   public void runCommand(int num) {
     switch (num) {
-      case -3 -> System.exit(0);
+      case -3 -> this.exitCommand();
       case -2 -> this.saveDataCommand();
       case -1 -> this.loadDataCommand();
       case 0 -> this.printCommandsList();
@@ -74,6 +76,11 @@ public class App {
       }
       default -> System.out.println("Invalid number!");
     }
+  }
+
+  public void exitCommand() {
+    System.out.println("Exiting...");
+    System.exit(0);
   }
 
   /**
@@ -106,7 +113,7 @@ public class App {
   }
 
   public void getNFromUsercommand() throws ExitException {
-    Optional<Integer> optN = new InputManager<>("Input N (N > 0):", Integer::parseInt,
+    Optional<Integer> optN = new InputManager<>("Input N (0 < N < 2147483647):", Integer::parseInt,
         (val) -> val > 0).getValue();
     optN.ifPresent(n -> {
       this.n = n;
@@ -121,6 +128,7 @@ public class App {
       return;
     }
 
+    System.out.println("Calculating...");
     // generating Threads on each Sector
     threadList = new ArrayList<>();
     IntStream.range(0, n)
@@ -147,38 +155,54 @@ public class App {
   }
 
   public void saveDataCommand() {
-    this.saveData();
+    try {
+      this.saveData();
+      System.out.println("Data saved");
+    } catch (IOException e) {
+      System.out.println("Error: " + e);
+    } catch (NumberFormatException e) {
+      System.out.println("Error: " + e);
+      System.out.println(
+          "N must be positive integer number greater than 0 and less than 2 147 483 647");
+    }
   }
 
   /**
    * Saves N to config.xml N must be greater than 0
    */
-  public void saveData() {
-    try {
-      if (this.n == 0) {
-        System.out.println("N is 0");
-        return;
-      }
-      this.config.saveConfig(this.n);
-    } catch (IOException e) {
-      System.out.println(e.getMessage());
+  public void saveData() throws IOException, NumberFormatException {
+    if (this.n == 0) {
+      throw new NumberFormatException("N is 0");
     }
+    this.config.saveConfig(this.n);
   }
 
   public void loadDataCommand() {
-    this.loadConfig();
+    try {
+      this.loadConfig();
+      System.out.println("config.xml loaded...");
+      System.out.println("N is " + this.n);
+    } catch (IOException e) {
+      if (e instanceof UnsupportedEncodingException) {
+        System.out.println("Encoding error. Encoding must be UTF-8");
+      } else if (e instanceof InvalidPropertiesFormatException) {
+        System.out.println("XML parse error. Check config.xml fields on syntax errors");
+      }
+//      System.out.println(e);
+    } catch (NumberFormatException e) {
+      System.out.println("Error: " + e);
+      System.out.println(
+          "N must be positive integer number greater than 0 and less than 2147483647.");
+      System.out.println("Also check config.xml fields on having syntax errors");
+    }
   }
 
   /**
    * Load config.xml data to Config class
    */
-  public void loadConfig() {
-    try {
-      this.config.loadConfig();
-      this.loadN();
-    } catch (IOException e) {
-      System.out.println(e.getMessage());
-    }
+  public void loadConfig() throws IOException, NumberFormatException {
+    this.config.loadConfig();
+    this.loadN();
   }
 
   /**
@@ -186,16 +210,12 @@ public class App {
    * <p>
    * On error doing nothing
    */
-  public void loadN() {
-    try {
-      if (config.getN() == 0) {
-        throw new NumberFormatException();
-      }
-      this.n = config.getN();
-      this.updateMap();
-    } catch (NumberFormatException nfe) {
-      System.out.println("Invalid N in config.xml!");
+  public void loadN() throws NumberFormatException {
+    if (config.getN() == 0) {
+      throw new NumberFormatException();
     }
+    this.n = config.getN();
+    this.updateMap();
   }
 
 }

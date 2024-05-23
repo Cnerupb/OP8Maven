@@ -11,14 +11,13 @@ public class Config {
   private final Properties properties = new Properties();
   private final String configFilePath = "config.xml";
 
-  public void loadConfig()
-      throws IOException {
-    try(FileInputStream fis = new FileInputStream(configFilePath)) {
+  public void loadConfig() throws IOException {
+    try (FileInputStream fis = new FileInputStream(configFilePath)) {
       properties.loadFromXML(fis);
     }
   }
 
-  public void saveConfig(int N) throws IOException{
+  public void saveConfig(int N) throws IOException {
     properties.setProperty("N", String.valueOf(N));
     try (FileOutputStream fos = new FileOutputStream(configFilePath)) {
       properties.storeToXML(fos, "Amount of map Pieces");
